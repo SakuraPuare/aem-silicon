@@ -154,6 +154,11 @@ docker_pull() {
 }
 export -f docker_pull
 
+is_darwin() {
+  [[ "$(uname -s)" == "Darwin" ]]
+}
+export -f is_darwin
+
 docker_setup_cross_platform() {
   platform="${1}"
   if [[ "${1}" == "aarch64" || "${1}" == "arm64" ]]; then
@@ -556,9 +561,11 @@ apollo_create_container_volume_options() {
   # X
   volume_opts+=('-v' '/tmp/.X11-unix:/tmp/.X11-unix:rw')
   # kernel modules
-  volume_opts+=('-v' '/lib/modules:/lib/modules')
-  # localtime
-  volume_opts+=('-v' '/etc/localtime:/etc/localtime:ro')
+  if ! is_darwin; then
+    volume_opts+=('-v' '/lib/modules:/lib/modules')
+    # localtime
+    volume_opts+=('-v' '/etc/localtime:/etc/localtime:ro')
+  fi
 
   # auca
   auca_sdk_so="/usr/lib/libapollo-auca-sdk.so.1"
@@ -573,8 +580,10 @@ apollo_create_container_volume_options() {
   fi
 
   # arm igpu kernel data
-  [[ $(uname -m) == aarch64 || $(uname -m) == arm64 ]] && [[ -e "/sys/kernel/debug" ]] &&
-    volume_opts+=('-v' '/sys/kernel/debug:/sys/kernel/debug')
+  if ! is_darwin; then
+    [[ $(uname -m) == aarch64 || $(uname -m) == arm64 ]] && [[ -e "/sys/kernel/debug" ]] &&
+      volume_opts+=('-v' '/sys/kernel/debug:/sys/kernel/debug')
+  fi
 
   volume_opts+=('-v' '/dev/null:/dev/raw1394')
 
@@ -801,7 +810,9 @@ apollo_create_container() {
 
   options+=(
     '--pid=host'
-    '--network' 'host'
+    # '--network host' is not supported on Docker Desktop (Darwin)
+    # only enable on non-Darwin platforms
+    $(is_darwin || echo "--network host")
     '--add-host' "$(hostname):127.0.0.1"
     '--add-host' 'in-dev-docker:127.0.0.1'
     '--hostname' 'in-dev-docker'
