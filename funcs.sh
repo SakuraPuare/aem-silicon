@@ -297,8 +297,8 @@ apollo_create_envhome() {
   export APOLLO_ENV_HOME="${env_home}"
   export APOLLO_ENV_ROOT="${env_root}"
 
-  # docker backend, create volume
-  if [[ "${APOLLO_ENV_BACKEND}" == "docker" ]]; then
+  # docker backend, create volume (skip named volumes on Darwin)
+  if [[ "${APOLLO_ENV_BACKEND}" == "docker" ]] && ! is_darwin; then
     for x in {apollo,opt}; do
       local volume_name="${APOLLO_ENV_CONTAINER_PREFIX}${env_name}_${x}"
       if [[ "${AEM_FLAG_FORCE_RECREATE_VOLUMES}" == "1" ]]; then
@@ -590,8 +590,14 @@ apollo_create_container_volume_options() {
   # volume for apollo packages and configurations
   if [[ ${APOLLO_NO_MOUNT_ENV} -ne 1 ]]; then
     for x in {apollo,opt}; do
-      local volume_name="${APOLLO_ENV_CONTAINER_PREFIX}${APOLLO_ENV_NAME}_${x}"
-      volume_opts+=('-v' "${volume_name}:/${x}")
+      if is_darwin; then
+        # Use direct bind mounts on Darwin
+        mkdir -p "${APOLLO_ENV_ROOT}/${x}"
+        volume_opts+=('-v' "${APOLLO_ENV_ROOT}/${x}:/${x}")
+      else
+        local volume_name="${APOLLO_ENV_CONTAINER_PREFIX}${APOLLO_ENV_NAME}_${x}"
+        volume_opts+=('-v' "${volume_name}:/${x}")
+      fi
     done
   fi
 
