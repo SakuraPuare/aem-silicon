@@ -557,14 +557,14 @@ apollo_create_container_volume_options() {
   # system devices
   volume_opts+=('-v' '/dev:/dev')
   # shared directories
-  volume_opts+=('-v' '/media:/media')
+  # volume_opts+=('-v' '/media:/media')
   # X
   volume_opts+=('-v' '/tmp/.X11-unix:/tmp/.X11-unix:rw')
   # kernel modules
   if ! is_darwin; then
     volume_opts+=('-v' '/lib/modules:/lib/modules')
     # localtime
-    volume_opts+=('-v' '/etc/localtime:/etc/localtime:ro')
+    # volume_opts+=('-v' '/etc/localtime:/etc/localtime:ro')
   fi
 
   # auca
