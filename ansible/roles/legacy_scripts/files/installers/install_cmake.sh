@@ -36,7 +36,7 @@ CHECKSUM=
 if [[ "${TARGET_ARCH}" == "x86_64" ]]; then
     CMAKE_SH="cmake-${VERSION}-Linux-x86_64.sh"
     CHECKSUM="d94155cef56ff88977306653a33e50123bb49885cd085edd471d70dfdfc4f859"
-elif [[ "${TARGET_ARCH}" == "aarch64" ]]; then
+elif [[ "${TARGET_ARCH}" == "aarch64" || "${TARGET_ARCH}" == "arm64" ]]; then
     CMAKE_SH="cmake-${VERSION}-Linux-aarch64.sh"
     CHECKSUM="f383c2ef96e5de47c0a55957e9af0bdfcf99d3988c17103767c9ef1b3cd8c0a9"
 fi

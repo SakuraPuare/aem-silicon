@@ -201,7 +201,7 @@ USE_AMD_GPU=0
 USE_NVIDIA_GPU=0
 
 function determine_gpu_use_host() {
-  if [[ "${TARGET_ARCH}" == "aarch64" ]]; then
+  if [[ "${TARGET_ARCH}" == "aarch64" || "${TARGET_ARCH}" == "arm64" ]]; then
     if lsmod | grep -q "^nvgpu"; then
       USE_NVIDIA_GPU=1
     fi

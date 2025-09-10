@@ -38,7 +38,7 @@ TARGET_ARCH="$(uname -m)"
 if [[ "${INSTALL_MODE}" == "binary" ]]; then
   if [[ "${TARGET_ARCH}" == "x86_64" ]]; then
     SRC_URI="https://apollo-system.cdn.bcebos.com/archive/6.0/fast-rtps-1.5.0-1.prebuilt.x86_64.tar.gz"
-  elif [[ "${TARGET_ARCH}" == "aarch64" ]]; then
+  elif [[ "${TARGET_ARCH}" == "aarch64" || "${TARGET_ARCH}" == "arm64" ]]; then
     SRC_URI="https://apollo-system.cdn.bcebos.com/archive/6.0/fast-rtps-1.5.0-1.prebuilt.aarch64.tar.gz"
   else
     error "Unsupported target arch: ${TARGET_ARCH}"

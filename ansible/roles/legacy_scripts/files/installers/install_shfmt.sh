@@ -32,7 +32,7 @@ if [ "$TARGET_ARCH" == "x86_64" ]; then
   BIN_NAME="shfmt_v${VERSION}_linux_amd64"
   CHECKSUM="43439b996942b53dfafa9b6ff084f394555d049c98fb7ec37978f7668b43e1be"
 
-elif [ "$TARGET_ARCH" == "aarch64" ]; then
+elif [ "$TARGET_ARCH" == "aarch64" ] || [ "$TARGET_ARCH" == "arm64" ]; then
   BIN_NAME="shfmt_v${VERSION}_linux_arm64"
   CHECKSUM="1cb7fc0ace531b907977827a0fe31f6e2595afcafe554e6d7f9d6f4470e37336"
 else

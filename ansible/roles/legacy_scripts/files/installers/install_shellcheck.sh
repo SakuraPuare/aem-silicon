@@ -50,7 +50,7 @@ SRC_URI="${SRC_URI:-https://github.com/koalaman/shellcheck/releases/download/v${
 
 if [[ "${TARGET_ARCH}" == "x86_64" ]]; then
   : # CHECKSUM="64f17152d96d7ec261ad3086ed42d18232fcb65148b44571b564d688269d36c8"
-elif [[ "${TARGET_ARCH}" == "aarch64" ]]; then
+elif [[ "${TARGET_ARCH}" == "aarch64" || "${TARGET_ARCH}" == "arm64" ]]; then
   : # CHECKSUM="b50cc31509b354ab5bbfc160bc0967567ed98cd9308fd43f38551b36cccc4446"
 else
   warning "${TARGET_ARCH} architecture is currently not supported."

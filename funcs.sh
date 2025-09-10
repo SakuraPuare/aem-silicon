@@ -62,10 +62,15 @@ check_dns_host_valid() {
 }
 
 check_nvidia_gpu_available() {
-  if [[ "$(uname -m)" == "aarch64" ]]; then
-    if lsmod | grep -q "^nvgpu"; then
-      return 0
+  if [[ "$(uname -m)" == "aarch64" || "$(uname -m)" == "arm64" ]]; then
+    if [[ "$(uname -s)" == "Linux" ]]; then
+      if lsmod | grep -q "^nvgpu"; then
+        return 0
+      else
+        return 1
+      fi
     else
+      # Darwin / other OS: treat as no NVIDIA GPU available
       return 1
     fi
   elif [[ "$(uname -m)" == "x86_64" ]]; then
@@ -151,7 +156,7 @@ export -f docker_pull
 
 docker_setup_cross_platform() {
   platform="${1}"
-  if [[ "${1}" == "aarch64" ]]; then
+  if [[ "${1}" == "aarch64" || "${1}" == "arm64" ]]; then
     docker run --rm --privileged multiarch/qemu-user-static --reset -p yes -c yes > /dev/null
     if [[ ! $? -eq 0 ]]; then
       error "qemu setup failed"
@@ -470,7 +475,7 @@ apollo_determine_image() {
       target_arch="${APOLLO_ENV_CROSS_PLATFORM}"
     fi
     if [[ -z "${repo}" ]]; then
-      if [[ "${target_arch}" == "aarch64" ]]; then
+      if [[ "${target_arch}" == "aarch64" || "${target_arch}" == "arm64" ]]; then
         repo="${APOLLO_ENV_CONTAINER_REPO_ARM}"
       elif [[ "${target_arch}" == "x86_64" ]]; then
         repo="${APOLLO_ENV_CONTAINER_REPO_X86}"
@@ -480,7 +485,7 @@ apollo_determine_image() {
       fi
     fi
     if [[ -z "${tag}" ]]; then
-      if [[ "${target_arch}" == "aarch64" ]]; then
+      if [[ "${target_arch}" == "aarch64" || "${target_arch}" == "arm64" ]]; then
         tag="${APOLLO_ENV_CONTAINER_TAG_ARM}"
       elif [[ "${target_arch}" == "x86_64" ]]; then
         tag="${APOLLO_ENV_CONTAINER_TAG_X86}"
@@ -505,7 +510,7 @@ apollo_create_container_gpu_options() {
         local docker_version
         docker_version="$(docker version --format '{{.Server.Version}}')"
         if [[ "$(cmp_version "${docker_version}" "19.03")" -ge 0 ]]; then
-          if [[ "$(uname -m)" == "aarch64" ]]; then
+          if [[ "$(uname -m)" == "aarch64" || "$(uname -m)" == "arm64" ]]; then
             gpu_opts+=('--runtime' 'nvidia')
           else
             gpu_opts+=('--gpus' 'all')
@@ -568,7 +573,7 @@ apollo_create_container_volume_options() {
   fi
 
   # arm igpu kernel data
-  [[ $(uname -m) == aarch64 ]] && [[ -e "/sys/kernel/debug" ]] &&
+  [[ $(uname -m) == aarch64 || $(uname -m) == arm64 ]] && [[ -e "/sys/kernel/debug" ]] &&
     volume_opts+=('-v' '/sys/kernel/debug:/sys/kernel/debug')
 
   volume_opts+=('-v' '/dev/null:/dev/raw1394')
@@ -682,7 +687,7 @@ apollo_container_created_post_action() {
   apollo_execute_cmd_in_container "ln -snf ${container_aem_path}/aem /usr/bin/aem"
   apollo_execute_cmd_in_container "ln -snf ${container_aem_path}/auto_complete.bash /etc/bash_completion.d/aem"
   apollo_execute_cmd_in_container "ln -snf ${container_aem_path}/auto_complete.zsh /usr/share/zsh/functions/Completion/Unix/_aem"
-  apollo_execute_cmd_in_container "[[ $(uname -m) == "aarch64" ]] && [[ -e /sys/kernel/debug ]] && chmod +rx /sys/kernel/debug"
+  apollo_execute_cmd_in_container "[[ $(uname -m) == \"aarch64\" || $(uname -m) == \"arm64\" ]] && [[ -e /sys/kernel/debug ]] && chmod +rx /sys/kernel/debug"
   apollo_execute_cmd_in_container "apt update && apt install --only-upgrade -y ${init_packages[@]}"
   apollo_execute_cmd_in_container "chmod 777 /opt/apollo/neo/packages/buildtool/latest/setup.sh"
   apollo_execute_cmd_in_container "mkdir -pv /opt/apollo/neo/etc && chmod 777 -R /opt/apollo/neo/etc"
@@ -731,8 +736,10 @@ apollo_create_container_env_options() {
   env_opts+=('-e' "HISTFILE=${APOLLO_ENV_WORKROOT}/.cache/.bash_history")
 
   # eplite
-  cat /etc/bash.bashrc | grep AIPE_WITH_UNIX_DOMAIN_SOCKET > /dev/null 2>&1
-  [[ $? == 0 ]] && env_opts+=('-e' "AIPE_WITH_UNIX_DOMAIN_SOCKET=ON")
+  if [[ -f /etc/bash.bashrc ]]; then
+    cat /etc/bash.bashrc | grep AIPE_WITH_UNIX_DOMAIN_SOCKET > /dev/null 2>&1
+    [[ $? == 0 ]] && env_opts+=('-e' "AIPE_WITH_UNIX_DOMAIN_SOCKET=ON")
+  fi
 
   echo "${env_opts[*]}"
 }

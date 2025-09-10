@@ -56,7 +56,7 @@ if [[ "${INSTALL_MODE}" == "download" ]]; then
     if [[ "${TARGET_ARCH}" == "x86_64" ]]; then
         DEVICE_QUERY_BINARY="deviceQuery-${MAIN_VER}_${CUDA_VERSION}_amd64.bin"
         CHECKSUM="da573cc68ad5fb227047064d73123a8a966df35be19b68163338b6dc0d576c84"
-    elif [[ "${TARGET_ARCH}" == "aarch64" ]]; then
+    elif [[ "${TARGET_ARCH}" == "aarch64" || "${TARGET_ARCH}" == "arm64" ]]; then
         DEVICE_QUERY_BINARY="deviceQuery-${MAIN_VER}_${CUDA_VERSION}_arm64.bin"
         CHECKSUM="fe55e0da8ec20dc13e778ddf7ba95bca45efd51d8f4e6c4fd05f2fb9856f4ac8"
     else
@@ -78,7 +78,7 @@ else
     pushd ${CUDA_SAMPLES}/Samples/deviceQuery/
         if [[ "${TARGET_ARCH}" == "x86_64" ]]; then
             make
-        elif [[ "${TARGET_ARCH}" == "aarch64" ]]; then
+        elif [[ "${TARGET_ARCH}" == "aarch64" || "${TARGET_ARCH}" == "arm64" ]]; then
             make TARGET_ARCH=aarch64
         else
             error "Support for ${TARGET_ARCH} not ready yet."

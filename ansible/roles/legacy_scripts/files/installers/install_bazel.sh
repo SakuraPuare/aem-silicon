@@ -57,7 +57,7 @@ if [[ "$TARGET_ARCH" == "x86_64" ]]; then
 
   info "Done installing bazel ${BAZEL_VERSION} with buildifier ${BUILDTOOLS_VERSION}"
 
-elif [[ "$TARGET_ARCH" == "aarch64" ]]; then
+elif [[ "$TARGET_ARCH" == "aarch64" || "$TARGET_ARCH" == "arm64" ]]; then
   BAZEL_VERSION="5.2.0"
   ARM64_BINARY="bazel-${BAZEL_VERSION}-linux-arm64"
   CHECKSUM="af2b09fc30123af7aee992eba285c61758c343480116ba76d880268e40d081a5"

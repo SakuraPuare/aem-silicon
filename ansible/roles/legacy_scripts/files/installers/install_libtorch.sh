@@ -85,7 +85,7 @@ if [[ "${TARGET_ARCH}" == "x86_64" ]]; then
       : # use custom download method
     fi
   fi
-elif [[ "${TARGET_ARCH}" == "aarch64" ]]; then
+elif [[ "${TARGET_ARCH}" == "aarch64" || "${TARGET_ARCH}" == "arm64" ]]; then
   if [[ -z "${SRC_URI}" ]]; then
     SRC_URI="
     https://apollo-pkg-beta.cdn.bcebos.com/archive/${PN}_cpu-${MY_PVR}-linux-${TARGET_ARCH}.tar.gz

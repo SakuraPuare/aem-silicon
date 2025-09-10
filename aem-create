@@ -90,7 +90,7 @@ or type any other key to exit: "
 
 check_os_kernel() {
   local os_kernel="$(uname -s)"
-  if [ "${os_kernel}" != "Linux" ]; then
+  if [ "${os_kernel}" != "Linux" ] && [ "${os_kernel}" != "Darwin" ]; then
     fatal "Running Apollo on ${os_kernel} is untested, exiting."
     exit 1
   fi
@@ -98,7 +98,7 @@ check_os_kernel() {
 
 check_target_arch() {
   local arch="$(uname -m)"
-  local supported_arch=("x86_64" "aarch64")
+  local supported_arch=("x86_64" "aarch64" "arm64")
   local supported=0
   for sa in ${supported_arch[@]}; do
     if [ "${arch}" == "${sa}" ]; then
@@ -136,7 +136,7 @@ parse_arguments() {
         if [[ "$(uname -m)" == "${APOLLO_ENV_CROSS_PLATFORM}" ]]; then
           continue
         fi
-        if [[ "$(uname -m)" == "x86_64" && "${APOLLO_ENV_CROSS_PLATFORM}" == "aarch64" ]]; then
+        if [[ "$(uname -m)" == "x86_64" && "${APOLLO_ENV_CROSS_PLATFORM}" == "aarch64" ]] || [[ "$(uname -m)" == "arm64" && "${APOLLO_ENV_CROSS_PLATFORM}" == "aarch64" ]]; then
           if ! docker_setup_cross_platform "aarch64"; then
             fatal "failed to setup cross-platform environment for aarch64"
             exit 1
